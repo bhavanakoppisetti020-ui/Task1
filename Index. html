@@ -1,202 +1,41 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>AI-Based Career Guidance — Demo</title>
-  <style>
-    :root{--bg:#f7fafc;--card:#ffffff;--muted:#6b7280;--accent:#0ea5a4;--success:#10b981}
-    *{box-sizing:border-box}
-    body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);margin:0;color:#0f172a}
-    .container{max-width:980px;margin:32px auto;padding:20px}
-    header{display:flex;gap:16px;align-items:center}
-    h1{margin:0;font-size:1.5rem}
-    p.lead{margin:4px 0 18px;color:var(--muted)}
-
-    .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(15,23,42,0.06);}
-    textarea{width:100%;min-height:110px;border:1px solid #e6edf3;border-radius:8px;padding:12px;font-size:14px}
-    .controls{display:flex;gap:8px;margin-top:12px;align-items:center}
-    button{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:600}
-    button.secondary{background:#fff;border:1px solid #e6edf3;color:#0f172a}
-    button:disabled{opacity:.6;cursor:not-allowed}
-
-    .layout{display:grid;grid-template-columns:1fr 380px;gap:18px;margin-top:18px}
-    @media (max-width:880px){.layout{grid-template-columns:1fr}}
-
-    .list-item{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:8px;border:1px solid #f0f4f8;background:linear-gradient(180deg,#fff,#fbfdff)}
-    .list-item + .list-item{margin-top:10px}
-    .score{font-weight:700;color:var(--accent)}
-    .muted{color:var(--muted);font-size:13px}
-
-    .details h3{margin:0 0 6px}
-    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-    .chip{background:#eef2f2;padding:6px 8px;border-radius:999px;font-size:13px}
-
-    .small{font-size:13px;color:var(--muted)}
-    .footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
-
-    /* tiny responsive tweaks */
-    .controls .range{width:160px}
-    .export{margin-left:auto}
-  </style>
+  <meta charset="UTF-8">
+  <title>Prime Number Checker</title>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="card" style="padding:12px 16px;display:flex;align-items:center;gap:12px">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden>
-          <path d="M12 2v6" stroke="#06b6d4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-          <path d="M6 8.5C6 12.5 8 14.5 12 16" stroke="#06b6d4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-          <path d="M18 8.5C18 12.5 16 14.5 12 16" stroke="#06b6d4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-        </svg>
-        <div>
-          <h1>AI-Based Career Guidance</h1>
-          <p class="lead">Enter skills and the app suggests career paths, jobs and courses.</p>
-        </div>
-      </div>
-    </header>
+  <h1>Prime Number Checker</h1>
 
-    <main style="margin-top:18px">
-      <div class="card">
-        <label for="skills"><strong>Enter your skills</strong> <span class="small">(comma / newline separated)</span></label>
-        <textarea id="skills" placeholder="e.g. Python, SQL, React, communication, Figma"></textarea>
+  <input type="number" id="numberInput" placeholder="Enter a number">
+  <button onclick="checkPrime()">Check</button>
 
-        <div class="controls">
-          <button id="suggestBtn">Suggest Careers</button>
-          <button class="secondary" id="clearBtn">Clear</button>
-          <div style="margin-left:12px" class="small">Min fit: <span id="minVal">0%</span></div>
-          <input type="range" class="range" id="minRange" min="0" max="100" value="0" />
-
-          <button class="secondary export" id="exportBtn">Export CSV</button>
-        </div>
-      </div>
-
-      <div class="layout">
-        <section>
-          <div class="card" style="min-height:240px">
-            <h2 style="margin-top:0">Suggestions</h2>
-            <div id="suggestions"> <div class="muted">No suggestions yet. Add skills and click Suggest Careers.</div></div>
-          </div>
-        </section>
-
-        <aside>
-          <div class="card details" id="detailCard">
-            <h2 style="margin-top:0">Details</h2>
-            <div id="detailsContent" class="muted">Select a suggestion to view details.</div>
-          </div>
-        </aside>
-      </div>
-
-      <div class="footer">Tip: This demo uses a small built-in dataset and basic matching. Replace the matching logic with a server-side AI/LLM for richer personalized plans.</div>
-    </main>
-  </div>
+  <p id="result"></p>
 
   <script>
-    // Small dataset of careers
-    const CAREERS = [
-      {id:'data-scientist', title:'Data Scientist', desc:'Analyze data, build ML models, and create products.', skills:['python','statistics','machine learning','sql','data visualization'], jobs:['ML Engineer','Data Analyst'], courses:['Intro to ML - Coursera','Applied Data Science - edX']},
-      {id:'frontend', title:'Frontend Engineer', desc:'Build web UIs and interactive experiences.', skills:['javascript','html','css','react','ui/ux'], jobs:['UI Engineer','Web Developer'], courses:['Modern React - Udemy','Responsive CSS - freeCodeCamp']},
-      {id:'product', title:'Product Manager', desc:'Define strategy and ship product features.', skills:['communication','roadmapping','prioritization','analytics','stakeholder management'], jobs:['Product Owner','Program Manager'], courses:['Product Strategy - Coursera','Agile PM - Udacity']},
-      {id:'devops', title:'DevOps Engineer', desc:'Operate and scale infrastructure, CI/CD.', skills:['linux','docker','kubernetes','ci/cd','monitoring'], jobs:['SRE','Cloud Engineer'], courses:['Kubernetes in Practice - Pluralsight','Cloud Fundamentals - AWS']},
-      {id:'digital', title:'Digital Marketer', desc:'Run campaigns and grow acquisition.', skills:['seo','content marketing','analytics','ppc','social media'], jobs:['Growth Marketer','SEO Specialist'], courses:['Digital Marketing - Coursera','Google Analytics - Google']}
-    ];
+    function checkPrime() {
+      const num = parseInt(document.getElementById("numberInput").value);
+      const result = document.getElementById("result");
 
-    const el = id => document.getElementById(id);
-    const skillsInput = el('skills');
-    const suggestBtn = el('suggestBtn');
-    const suggestionsEl = el('suggestions');
-    const detailsEl = el('detailsContent');
-    const clearBtn = el('clearBtn');
-    const minRange = el('minRange');
-    const minVal = el('minVal');
-    const exportBtn = el('exportBtn');
+      if (isNaN(num) || num < 1) {
+        result.textContent = "Please enter a positive integer.";
+        return;
+      }
 
-    function normalize(s){return s.trim().toLowerCase()}
+      if (num === 1) {
+        result.textContent = "1 is not a prime number.";
+        return;
+      }
 
-    function parseSkills(text){
-      return text.split(/[\n,;]+/).map(normalize).filter(Boolean);
+      for (let i = 2; i <= Math.sqrt(num); i++) {
+        if (num % i === 0) {
+          result.textContent = num + " is not a prime number.";
+          return;
+        }
+      }
+
+      result.textContent = num + " is a prime number!";
     }
-
-    function relatedBoost(userSet, required){
-      const map = [ {from:['pandas','numpy'], to:'python'}, {from:['ts','typescript'], to:'javascript'}, {from:['figma','adobexd'], to:'ui/ux'}, {from:['gcp','aws','azure'], to:'cloud'} ];
-      let boost=0;
-      for(const m of map) for(const f of m.from) if(userSet.has(f) && required.includes(m.to)) { boost+=0.6; break }
-      const prog = ['python','javascript','java','c++','c#','go','rust'].some(p=>userSet.has(p));
-      if(prog && required.some(r=>['python','javascript','sql','linux'].includes(r))) boost+=0.4;
-      return boost;
-    }
-
-    function scoreCareer(userSkills, career){
-      const required = career.skills.map(normalize);
-      const userSet = new Set(userSkills.map(normalize));
-      let overlap=0; for(const r of required) if(userSet.has(r)) overlap++;
-      const rb = relatedBoost(userSet, required);
-      const raw = (overlap + rb) / Math.max(required.length,1);
-      return Math.round(raw*100);
-    }
-
-    function renderSuggestions(results){
-      suggestionsEl.innerHTML='';
-      if(results.length===0){ suggestionsEl.innerHTML='<div class="muted">No matching careers found.</div>'; return }
-      results.forEach(r=>{
-        const item = document.createElement('div'); item.className='list-item';
-        const left = document.createElement('div');
-        left.innerHTML = `<div style="font-weight:700">${r.title}</div><div class="muted">${r.desc}</div>`;
-        const right = document.createElement('div'); right.style.textAlign='right'; right.innerHTML = `<div class="score">${r.score}%</div><div class="small">fit</div>`;
-        item.appendChild(left); item.appendChild(right);
-        item.addEventListener('click', ()=> showDetails(r));
-        suggestionsEl.appendChild(item);
-      })
-    }
-
-    function showDetails(item){
-      detailsEl.innerHTML = `\n        <h3>${item.title} — <span style=\"color:var(--accent)\">${item.score}% fit</span></h3>\n        <p class="muted">${item.desc}</p>\n        <div><strong>Top jobs:</strong><div class="small">${item.jobs.join(', ')}</div></div>\n        <div style=\"margin-top:8px\"><strong>Suggested courses:</strong><ul>${item.courses.map(c=>`<li class=\"small\">${c}</li>`).join('')}</ul></div>\n        <div style=\"margin-top:8px\"><strong>Required skills:</strong><div class=\"chips\">${item.skills.map(s=>`<span class=\"chip\">${s}</span>`).join('')}</div></div>\n        <div style=\"margin-top:10px;display:flex;gap:8px\">\n          <button onclick=\"applyMock()\">Apply (mock)</button>\n          <button class=\"secondary\" onclick=\"saveMock()\">Save</button>\n        </div>`;
-      detailsEl.scrollIntoView({behavior:'smooth'});
-    }
-
-    function applyMock(){ alert('Apply flow — integrate with your jobs API') }
-    function saveMock(){ alert('Saved to profile — integrate with backend') }
-
-    suggestBtn.addEventListener('click', ()=>{
-      const parsed = parseSkills(skillsInput.value);
-      if(parsed.length===0){ suggestionsEl.innerHTML='<div class="muted">Please enter at least one skill.</div>'; return }
-      const scored = CAREERS.map(c=> ({...c, score: scoreCareer(parsed, c)}));
-      scored.sort((a,b)=>b.score-a.score);
-      const threshold = Number(minRange.value);
-      const filtered = scored.filter(s=>s.score>=threshold);
-      renderSuggestions(filtered);
-      detailsEl.innerHTML = '<div class="muted">Select a suggestion to view details.</div>';
-    })
-
-    clearBtn.addEventListener('click', ()=>{ skillsInput.value=''; suggestionsEl.innerHTML='<div class="muted">No suggestions yet. Add skills and click Suggest Careers.</div>'; detailsEl.innerHTML='Select a suggestion to view details.' })
-
-    minRange.addEventListener('input', ()=>{ minVal.textContent = minRange.value + '%'; })
-
-    exportBtn.addEventListener('click', ()=>{
-      const rows = [];
-      const header = ['Career','Score','Top Jobs','Courses'].join(',');
-      const items = Array.from(document.querySelectorAll('.list-item'));
-      if(items.length===0){ alert('Nothing to export'); return }
-      // build CSV using last rendered results from suggestions area
-      const cards = Array.from(suggestionsEl.children).map((c)=>{
-        const title = c.querySelector('div').innerText.split('\n')[0];
-        const score = c.querySelector('.score')?.innerText || '';
-        return {title,score}
-      });
-      // match titles to CAREERS
-      const csvRows = cards.map(card => {
-        const c = CAREERS.find(x=>x.title===card.title);
-        if(!c) return [card.title,card.score,'',''].join(',');
-        return [c.title,card.score,c.jobs.join('|'),c.courses.join('|')].join(',');
-      });
-      const csv = [header,...csvRows].join('\n');
-      const blob = new Blob([csv], {type:'text/csv'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download='career-suggestions.csv'; a.click(); URL.revokeObjectURL(url);
-    })
-
-    // Small UX: press Ctrl+Enter to suggest
-    skillsInput.addEventListener('keydown', (e)=>{ if((e.ctrlKey || e.metaKey) && e.key==='Enter'){ suggestBtn.click() } })
   </script>
 </body>
 </html>
