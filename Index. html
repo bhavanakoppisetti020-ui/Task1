@@ -2,39 +2,111 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Prime Number Checker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retirement Age Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .calculator-container {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 300px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .result {
+      margin-top: 15px;
+      font-size: 1rem;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
-  <h1>Prime Number Checker</h1>
+  <div class="calculator-container">
+    <h1>Retirement Age Calculator</h1>
+    <label for="currentAge">Current Age:</label>
+    <input type="number" id="currentAge" placeholder="Enter your current age" />
 
-  <input type="number" id="numberInput" placeholder="Enter a number">
-  <button onclick="checkPrime()">Check</button>
+    <label for="retirementAge">Desired Retirement Age:</label>
+    <input type="number" id="retirementAge" placeholder="Enter your retirement age" />
 
-  <p id="result"></p>
+    <button onclick="calculateRetirement()">Calculate</button>
+
+    <div class="result" id="result"></div>
+  </div>
 
   <script>
-    function checkPrime() {
-      const num = parseInt(document.getElementById("numberInput").value);
-      const result = document.getElementById("result");
+    function calculateRetirement() {
+      const currentAge = parseInt(document.getElementById('currentAge').value);
+      const retirementAge = parseInt(document.getElementById('retirementAge').value);
+      const resultDiv = document.getElementById('result');
 
-      if (isNaN(num) || num < 1) {
-        result.textContent = "Please enter a positive integer.";
+      if (isNaN(currentAge) || isNaN(retirementAge) || currentAge <= 0 || retirementAge <= 0) {
+        resultDiv.textContent = "Please enter valid ages.";
+        resultDiv.style.color = "red";
         return;
       }
 
-      if (num === 1) {
-        result.textContent = "1 is not a prime number.";
-        return;
-      }
+      const yearsLeft = retirementAge - currentAge;
 
-      for (let i = 2; i <= Math.sqrt(num); i++) {
-        if (num % i === 0) {
-          result.textContent = num + " is not a prime number.";
-          return;
-        }
+      if (yearsLeft > 0) {
+        resultDiv.textContent = `You have ${yearsLeft} years left until retirement.`;
+        resultDiv.style.color = "green";
+      } else if (yearsLeft === 0) {
+        resultDiv.textContent = "Congratulations! It's time to retire!";
+        resultDiv.style.color = "blue";
+      } else {
+        resultDiv.textContent = "You are already past your retirement age!";
+        resultDiv.style.color = "orange";
       }
-
-      result.textContent = num + " is a prime number!";
     }
   </script>
 </body>
